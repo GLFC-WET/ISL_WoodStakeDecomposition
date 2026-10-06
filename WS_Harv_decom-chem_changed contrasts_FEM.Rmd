@@ -40,6 +40,7 @@ chemistry$Treatment <- factor(as.character(chemistry$Treatment), levels = c("OLD
 metadata$Field.rep <- ifelse(metadata$Treatment == "OLD", 10, ifelse(metadata$Treatment == "FIRE", 20, ifelse(metadata$Treatment == "UC", 30, 0))) + as.numeric(metadata$Field.rep)
 density$Field.rep <- ifelse(density$Treatment == "OLD", 10, ifelse(density$Treatment == "FIRE", 20, ifelse(density$Treatment == "UC", 30, 0))) + as.numeric(density$Field.rep)
 
+
 ```
 
 
@@ -55,7 +56,10 @@ test.set.Harvest <- list(meta = metadata %>%
                                droplevels(), 
                          chemistry = chemistry %>% 
                                filter((is.na(Herbicide) | Herbicide == "NH") & !grepl("A[[:digit:]]+", Treatment)) %>% 
-                               droplevels())
+                               droplevels() %>% 
+                               ungroup() %>%
+                               mutate(StakeID = ifelse(is.na(StakeID), `Chem sample #`, StakeID)) %>%
+                               summarize(value = mean(value), .by = c(Treatment, Location, Field.rep, year, Position, ML, value.wt.corrected, StakeID, H.V, name)))
 
 
 rm(density, ITS, metadata, chemistry)
@@ -73,10 +77,10 @@ Emily Smenderovac^1^*, Caroline Emilson^1^, Eoin O'Hara^1^, Kerrie Wainio-Keizer
 ^2^ Centre for Northern Forest Ecosystem Research, Ontario Ministry of Natural Resources, Suite 103, 421 James Street South, Thunder Bay, Canada, P7E 2V6
 
 
-*Email addresses* of all the authors: 
+*Contact info* for the authors: 
 
 
-ES: emily.smenderovac@nrcan-rncan.gc.ca
+ES (corresponding author): emily.smenderovac@nrcan-rncan.gc.ca, phone 705-541-5647
 
 
 CE: caroline.emilson@nrcan-rncan.gc.ca
@@ -134,7 +138,7 @@ Many drivers of decomposition are dynamic through time, and have potential feedb
 
 
 Changes to the chemical composition of dead wood during the process of decay provide insight into the biological mechanisms occurring [@harmon2004;@smyth2016]. Elements such as aluminum and iron are required for various decay processes including pH modification, and as a catalyst for brown rot reactions [@robinson2021a;@arantes2012], but can be inhibitive at high concentrations [@lasota2019]. Other elements, such as calcium, carbon, magnesium, nitrogen, phosphorus and potassium are required for microbial metabolism. Trace elements, such as boron, manganese and zinc, can enhance decomposition at trace levels but can also inhibit decomposition at low concentrations [@janusz2013;@gerwien2018;@baldrian2005]. 
-Harvesting practices can influence the availability of these elements by altering soil nutrient pools, organic matter inputs, and the connectivity between decaying wood and surrounding soils [@brandtberg2012]. 
+Harvesting practices can influence the availability of these elements by altering soil nutrient amounts, organic matter inputs, and the connectivity between decaying wood and surrounding soils [@brandtberg2012]. 
 Nutrients in surrounding soils may be imported into wood during the decay process through tree roots or fungal hyphal networks [@vanderwal2015;@connolly1997;@clarholm2013;@boddy2009]. Therefore, the timing and magnitude of these element changes within decaying wood can indicate shifts in microbial activity, resource availability, and nutrient limitations under different harvesting practices. 
 
 
@@ -145,21 +149,21 @@ Herein, we investigate the effects of different biomass harvesting practices on 
 
 ## Site description
 
-This study was conducted at the Island Lake Biomass Harvest Research Trial sites near Chapleau, Ontario, Canada (47˚42’N, 83˚36’W), which have been well described in previous studies [@kwiaton2014a; @venier2017]. Based on long-term climate norms, the area experiences a cold, continental climate, with a mean annual temperature of 1.7˚C and receives 797 mm of precipitation, annually (Environment Canada 2014). Briefly, the experimental harvest trial site was established in a 48 year-old (as of 2010) second growth jack pine stand. Main treatment plots (70 m by 70 m, with a 10 m surrounding buffer to minimize edge effects) were harvested over the period of December 2010 to February 2011 and included four treatments reflecting increasing levels of biomass removal 1) stem-only (SO, i.e., leaving the live branches and tops of harvested trees at the stump), 2) full-tree biomass (FT, i.e., removing the above ground tree biomass, including the removal of poor or undersized trees, to roadside), 3) full-tree biomass with stump removal (S) and, 4) blading (B, i.e., removal of all biomass including stumps, dead wood and forest floor). All treatments had five replicate plots, with a portion of the stand left in-tact, where reference plots were established (Figure \@ref(fig:site-map)). The uncut reference plots (UC) at this site can be considered 'mid-aged' and in the self-thinning phase of stand development during the time of the study [@work2023]. All treatment plots, excluding the bladed plots, were site prepared using a power disc trencher. The main treatment plots were split north/south and planted with either jack pine or black spruce container stock in May 2012. The main plots were then split east/west, with one half receiving repeated glyphosate herbicide ground applications as part of another study. Only the portion of the plots planted with jack pine and without herbicide applications were used in this study. Additional plots from a young, regenerating second growth jack pine stand which experienced a stand-replacing wildfire in the spring of 2012 (FIRE) and an older (95-year-old) fire origin jack pine stand (OLD) were also included. These stands were all established on coarse-textured glacial outwash soils, but had different stand densities, forest floor depths and downed woody debris loads which are described in detail in Venier *et al.*, [-@venier2017]. 
+This study was conducted at the Island Lake Biomass Harvest Research Trial sites near Chapleau, Ontario, Canada (47˚42’N, 83˚36’W), which have been well described in previous studies [@kwiaton2014a; @venier2017]. Based on long-term climate norms, the area experiences a cold, continental climate, with a mean annual temperature of 1.7˚C and receives 797 mm of precipitation, annually (Environment Canada 2014). Briefly, the experimental harvest trial site was established in a 48 year-old (as of 2010) second growth jack pine stand. Main treatment plots (70 m by 70 m, with a 10 m surrounding buffer to minimize edge effects) were harvested over the period of December 2010 to February 2011 and included four treatments reflecting increasing levels of biomass removal 1) stem-only (SO, i.e., leaving the live branches and tops of harvested trees at the stump), 2) full-tree biomass (FT, i.e., removing the above ground tree biomass, including the removal of poor or undersized trees, to roadside), 3) full-tree biomass with stump removal (S) and, 4) blading (B, i.e., removal of all biomass including stumps, dead wood and forest floor). All treatments had five replicate plots, with a portion of the stand left in-tact, where reference plots were established (Figure \@ref(fig:site-map)). The uncut reference plots (UC) at this site can be considered 'mid-aged' and in the self-thinning phase of stand development during the time of the study [@work2023]. All treatment plots, excluding the bladed plots, were site prepared using a power disc trencher. The main treatment plots were split north/south and planted with either jack pine or black spruce container stock in May 2012. The main plots were then split east/west, with one half receiving repeated glyphosate herbicide ground applications as part of another study. Only the portion of the plots planted with jack pine and without herbicide applications were used in this study. Additional plots from a young, regenerating second growth jack pine stand which experienced a stand-replacing wildfire in the spring of 2012 (FIRE) and an older (95-year-old) fire origin jack pine stand (OLD) were also included. These stands were all established on coarse-textured glacial outwash soils, but had different stand densities, forest floor depths and downed woody debris loads which are described in detail in Venier *et al.*, [-@venier2017]. All reference stands also featured five replicate plots.
 
 
 ## Wood Stakes Incubation and Sample processing
 
 
-Untreated 1 x 1 inch x 30 cm Jack pine stakes were purchased from Little John's Sawmill in Timmins, Ontario, Canada in early September, 2016. From each independent stake, two paired 10 cm sections were cut: one section was dried for a minimum of 48h and weighed, and the other paired stake was retained for density measurements. Fifty stakes were installed in each treatment replicate. Twenty-five of the stakes were installed horizontally on the surface of the visible litter or moss layer, while the other twenty-five stakes were installed vertically, below-ground by creating a 1 by 1 inch hole before inserting the stake into the hole until the top of each stake was level with the forest floor surface. Ten stakes, 5 above-ground, and 5 below-ground were removed from each treatment plot, in late fall or early spring in each subsequent year until all stakes were collected in year 5. Stakes were collected using clean nitrile gloves, and clean plastic bags. Soil residues were gently removed from each stake, prior to being placed in sample bags. Samples were stored in coolers at ~4˚C for up to 24h and subsequently frozen at -20˚C.   
+Untreated 1 x 1 inch x 30 cm Jack pine stakes were purchased from Little John's Sawmill in Timmins, Ontario, Canada in early September, 2016. From each independent stake, two paired 10 cm sections were cut: one section was dried for a minimum of 48h and weighed, and the other paired stake was retained for density measurements. Fifty stakes were installed in each treatment replicate to enable 5 collections of 5 replicates for each plot. Twenty-five of the stakes were installed horizontally on the surface of the visible litter or moss layer, while the other twenty-five stakes were installed vertically, below-ground by creating a 1 by 1 inch hole before inserting the stake into the hole until the top of each stake was level with the forest floor surface. Ten stakes, 5 above-ground, and 5 below-ground were removed from each treatment plot, in late fall or early spring in each subsequent year until all stakes were collected in year 5. Stakes were collected using clean nitrile gloves, and clean plastic bags. Soil residues were gently removed from each stake, prior to being placed in sample bags. Samples were stored in coolers at ~4˚C for up to 24h and subsequently frozen at -20˚C.  
 
-After retrieval, stakes were weighed in the lab prior to subsampling for chemistry analyses. Subsamples were collected using clean equipment to prevent contamination: for less-decayed samples, a drill bit was used to remove a small amount of wood; for samples where there was loss of structural integrity due to decay, the sample was collected using tweezers and clean gloves. Chemistry subsamples were dried in a drying oven at 70˚C for 48h. The remaining stake residues were used for wood density analyses. 
+After retrieval, stakes were weighed in the lab prior to subsampling for chemistry analyses. Subsampling was performed prior to density estimation to avoid possible leaching and loss of chemicals. The remaining stake residues were used for wood density analyses. The total number of stakes pulled for each analysis were outlined in Table S\@ref(tab:stake-numbers).
 
 
 ## Wood Density and Mass loss measurements
 
 
-Post-incubation mass (i.e., wet versus dry weights of subsamples) were used to calculate total mass loss as in Equation \@ref(eq:eq0) and \@ref(eq:eq1). Stake residues that remained after subsampling were weighed and then immersed in a container filled with water, for a minimum of 48 h to achieve full saturation for volume measurements. To determine the volume of the remaining stake material, the saturated residues were then submerged into a beaker, and the weight of displaced water was recorded. After volume measurements the stakes were dried in a drying oven at 70˚C for a minimum of 48h and reweighed. These calculations were also performed for sister-stakes. Density was calculated as \@ref(eq:eq2) and density change was calculated as in Equation \@ref(eq:eq3). Density changes were highly comparable to mass loss (Pearson's r = `r test.x <- test.set.Harvest$density[,c("ML", "density.change")] %>% filter(!is.na(ML)&!is.na(density.change) & !density.change == -Inf); cor(test.x$ML, test.x$density.change) |> round(2)`), and so mass loss measurements were used to represent both parameters in subsequent analyses. There were issues with some incubated stakes from Nimitz year 4, where water retention was abnormally high and dry weights of the full mass of incubated stakes required an additional two days of drying and re-measurement.
+Post-incubation mass of retrieved and subsampled stakes were used to calculate total mass loss while accounting for material lost for subsampling as in Equation \@ref(eq:eq0) and \@ref(eq:eq1). Stakes were weighed and then immersed in a container filled with water, for a minimum of 48 h to achieve full saturation for volume measurements. Saturated stake residues were submerged in water, and volume was determined by water displacement. After volume measurements the stakes were dried in a drying oven at 70˚C for a minimum of 48h and reweighed. These calculations were also performed for sister-stakes. Density was calculated as \@ref(eq:eq2) and density change was calculated as in Equation \@ref(eq:eq3). Density changes were highly comparable to mass loss (Pearson's r = `r test.x <- test.set.Harvest$density[,c("ML", "density.change")] %>% filter(!is.na(ML)&!is.na(density.change) & !density.change == -Inf); cor(test.x$ML, test.x$density.change) |> round(2)`), and so mass loss measurements were used to represent both parameters in subsequent analyses. Several stakes from the OLD treatment in year 4 retained moisture after the standard 48 h drying period. These samples were dried for an additional 48 h and reweighed prior to calculating mass loss and density.
 
 
 \begin{equation}
@@ -192,9 +196,9 @@ where Density change is the change in wood density since the beginning of the in
 ## Wood Chemistry
 
 
-Wood chemistry analyses were performed at the Pacific Forestry Centre Analytical Lab (Victoria, BC, Canada). A portion of each stake was first ground to a particle size of 2 mm before digestion and analysis. C, N, and P extracts were prepared using the Mechlich 3 extractable elements method [@ziadi2008]. Total cation digestions were performed using a 100% cHNO3 digest on an Anton Paar Multiwave 7000 Microwave Digestion system. Extractable element extracts and total cation extracts were analyzed on an Agilent 7900 ICP-MS using Masshunter Software. Total Carbon and Nitrogen were analyzed on an Elementar Vario Max Cube combustion elemental analyzer per manufacturers recommended operating instructions. We analyzed chemistry on a subset of `r length(unique(test.set.Harvest$chemistry[["Chem sample #"]][test.set.Harvest$chemistry$year ==3]))` 3-year incubated stakes, `r length(unique(test.set.Harvest$chemistry[["Chem sample #"]][test.set.Harvest$chemistry$year ==5]))` 5-year incubated stakes, and a subset of `r length(unique(test.set.Harvest$chemistry[["Chem sample #"]][test.set.Harvest$chemistry$year == 0]))` unincubated stakes to serve as a time-zero comparison for later modelling. Chemical concentrations of sister stakes that were below accurate detection limits (BDL) were reported as the detection limit to provide a conservative approach to estimating time zero chemical pools, while BDL values from incubated stakes were included at the reported values, with the acceptance that some individual points may have been underrepresented because of this decision. 
+Chemistry subsamples were collected using clean equipment to prevent contamination: for less-decayed samples, a drill bit was used to remove a small amount of wood; for samples where there was loss of structural integrity due to decay, the sample was collected using tweezers and clean gloves. Chemistry subsamples were dried in a drying oven at 70˚C for 48h and ground to a 20 micron mesh size in a Wiley mill prior to analysis. A preliminary statistical test determined that the within-sample variation due to the particle size was smaller than anticipated effects sizes. Subsequently, wood chemistry analyses were performed at the Pacific Forestry Centre Analytical Lab (Victoria, BC, Canada). A portion of each stake was first ground to a particle size of 2 mm before digestion and analysis. C, N, and P extracts were prepared using the Mechlich 3 extractable elements method [@ziadi2008]. Total cation digestions were performed using a 100% cHNO3 digest on an Anton Paar Multiwave 7000 Microwave Digestion system. Extractable element extracts and total cation extracts were analyzed on an Agilent 7900 ICP-MS using Masshunter Software. Total Carbon and Nitrogen were analyzed on an Elementar Vario Max Cube combustion elemental analyzer per manufacturers recommended operating instructions. We analyzed chemistry on a subset of `r length(unique(test.set.Harvest$chemistry[["Chem sample #"]][test.set.Harvest$chemistry$year ==3]))` 3-year incubated stakes, `r length(unique(test.set.Harvest$chemistry[["Chem sample #"]][test.set.Harvest$chemistry$year ==5]))` 5-year incubated stakes, and a subset of `r length(unique(test.set.Harvest$chemistry[["Chem sample #"]][test.set.Harvest$chemistry$year == 0]))` unincubated stakes to serve as a time-zero comparison for later modelling. Chemical concentrations of sister stakes that were below accurate detection limits (BDL) were reported as the detection limit to provide a conservative approach to estimating time zero chemical amounts, while BDL values from incubated stakes were included at the reported values, with the acceptance that some individual points may have been underrepresented because of this decision. 
 
-Chemical parameters were presented as amount of chemical change proportional to the original chemical pool in the wood stake to control for changes in material volume over time. These were calculated using Equation \@ref(eq:eq4). <!--- This means increases in the amount mean it is concentrating, and decreases mean it is being lost --->
+Chemical parameters were presented as amount of chemical change proportional to the expected chemical amount based on the average values from unincubated stakes for changes in material volume over time. These were calculated using Equation \@ref(eq:eq4). <!--- This means increases in the amount mean it is concentrating, and decreases mean it is being lost --->
 
 \begin{equation}
 C_{change} = (C_t M_t - C_0 M_0)/C_0 M_0 (\#eq:eq4)
@@ -202,12 +206,13 @@ C_{change} = (C_t M_t - C_0 M_0)/C_0 M_0 (\#eq:eq4)
 
 where C~change~ is the proportional change in chemical content after incubation, C~t~ is the concentration of the parameter after incubation, M~t~ is the dry weight after incubation in grams, C~0~ was the highest measured concentration from unincubated stakes and, M~0~ is the dry weight before incubation, in grams. 
 
+Variation in chemistry values in the 45 unincubated states was assessed next to that of the treatments, and determined to be an adequate sample size to base comparisons due to the lower values and amount of variance (Tables S\@ref(tab:chemistry-summary-table-AG), S\@ref(tab:chemistry-summary-table-BG)). 
 
 ## Statistical analyses
 
 All statistical analyses were performed in `r R.Version()$version.string` [@R-base2023] with data cleaning and reshaping performed using the *tidyverse* (v. `r packageVersion("tidyverse")`) using tidy principles [@R-tidyverse;@tidyverse2019]. All data visualizations were completed in *ggplot2* (v. `r packageVersion("ggplot2")`) [@R-ggplot2] and *ggpubr* (v. `r packageVersion("ggpubr")`) [@R-ggpubr]. We completed analyses of above-ground and below-ground decomposition separately and used the orthogonal contrasts outlined in Table \@ref(tab:harv-ortho-table-out) to represent ecologically relevant treatment effects. 
 
-To test differences in decomposition, we compared wood stake mass loss between distinct treatments with mixed effects models using the *lmer* function of the *lme4* (v. `r packageVersion("lme4")`) package [@R-lme4] that included an interaction effect of the harvesting treatment contrasts with a second-order year polynomial covariate, and field replicate as an independent random effect. Yearly treatment-based mass-loss rates were calculated using the *emmeans* (v. `r packageVersion("emmeans")`) [@R-emmeans].  We also created models for each year separately to determine effect size of the treatment contrasts within each year using random effects models with the contrasts and field replicate as a random effect. To test the effects of the harvesting treatment contrasts on the chemical dynamics during decay, nitrogen, `r str_c(tolower(unique(test.set.Harvest$chemistry$name[!test.set.Harvest$chemistry$name %in% c("C", "N", "CNratio")])), collapse = ", ")` of each wood stake in mixed-effects models with our harvesting contrasts and a second order relationship to mass loss with field replicate as a random variable. This approach ignored interactions between mass-loss and treatment, so treatment effects were calculated as shifts of a central, underlying mass-loss element relationship.  
+To test differences in decomposition, we compared wood stake mass loss between distinct treatments with mixed effects models using the *lmer* function of the *lme4* (v. `r packageVersion("lme4")`) package [@R-lme4] that included an interaction effect of the harvesting treatment contrasts with a second-order year polynomial covariate, and field replicate as an independent random effect. Yearly treatment-based mass-loss rates were calculated using the *emmeans* (v. `r packageVersion("emmeans")`) [@R-emmeans].  We also created models for each year separately to determine effect size of the treatment contrasts within each year on differential mass loss outcomes using random effects models with the contrasts and field replicate as a random effect. To test the effects of the harvesting treatment contrasts on the changes in chemistry during decay, nitrogen, `r str_c(tolower(unique(test.set.Harvest$chemistry$name[!test.set.Harvest$chemistry$name %in% c("C", "N", "CNRatio")])), collapse = ", ")` of wood stakes were assessed in mixed-effects models that included our harvesting contrasts, a second order relationship to mass loss and field replicate as a random variable. This approach ignored interactions between mass-loss and treatment, so treatment effects were calculated as shifts of a central, underlying mass-loss element relationship. Individual model outputs can be found in the Zenodo and github repositories for this paper review.   
 
 
 ```{r harv-ortho}
@@ -275,7 +280,7 @@ contr.4lmer <- harvest.contrast.matrix[levels(density$Treatment), ] %>% as.matri
 
 colnames(contr.4lmer) <- colnames(harvest.contrast.matrix)
 rownames(contr.4lmer) <- rownames(harvest.contrast.matrix[levels(density$Treatment), ] )
-
+full.dens.mods <- list()
 dens.mods <- list()
 count = 1
 ### Think I want to make an estimate of effect size for each YEAR & look at the trend of the effects over time... - not in one model because there is an interaction there, and the density change relationship is not linear.
@@ -288,21 +293,27 @@ harv.dens.model.V <- lmerTest::lmer(ML ~ poly(as.numeric(year), 2, raw = TRUE) *
 
 dens.mods[[count]] <- summary(harv.dens.model.V)$coefficients %>% as.data.frame() %>%
       rownames_to_column("parameter") %>%
-      filter(!parameter %in% c("(Intercept)", "year"))%>%
       mutate(parameter = gsub("Treatment", "", parameter))
 
 names(dens.mods)[count] <-  "overall_V"
-count = count + 1
 
+
+full.dens.mods[[count]] <- harv.dens.model.V
+
+names(full.dens.mods)[count] <-  "overall_V"
+count = count + 1
 
 harv.dens.model.H <- lmerTest::lmer(ML ~ poly(as.numeric(year), 2, raw = TRUE) * Treatment + (1|Field.rep), data = density %>% filter(H.V == "H"))
 
 dens.mods[[count]] <- summary(harv.dens.model.H)$coefficients %>% as.data.frame() %>%
       rownames_to_column("parameter") %>%
-      filter(!parameter %in% c("(Intercept)", "year")) %>%
       mutate(parameter = gsub("Treatment", "", parameter))
 
 names(dens.mods)[count] <-  "overall_H"
+
+full.dens.mods[[count]] <- harv.dens.model.H
+
+names(full.dens.mods)[count] <-  "overall_H"
 count = count + 1
 
 ## emmeans pull local slopes from mixed model for each year
@@ -328,10 +339,14 @@ harv.dens.model.V <- lmerTest::lmer(ML ~ Treatment + (1|Field.rep), data = densi
 
 dens.mods[[count]] <- summary(harv.dens.model.V)$coefficients %>% as.data.frame() %>%
       rownames_to_column("parameter") %>%
-      filter(!parameter %in% c("(Intercept)", "year"))%>%
       mutate(parameter = gsub("Treatment", "", parameter))
 
 names(dens.mods)[count] <- paste0(paste0("Y", yr), "_V")
+
+full.dens.mods[[count]] <- harv.dens.model.V
+
+names(full.dens.mods)[count] <-  paste0(paste0("Y", yr), "_V")
+
 
 count = count +1 
 
@@ -339,10 +354,13 @@ harv.dens.model.H <- lmerTest::lmer(ML ~ Treatment + (1|Field.rep), data = densi
 
 dens.mods[[count]] <- summary(harv.dens.model.H)$coefficients %>% as.data.frame() %>%
       rownames_to_column("parameter") %>%
-      filter(!parameter %in% c("(Intercept)", "year")) %>%
       mutate(parameter = gsub("Treatment", "", parameter))
 
 names(dens.mods)[count] <- paste0(paste0("Y", yr), "_H")
+
+full.dens.mods[[count]] <- harv.dens.model.H
+
+names(full.dens.mods)[count] <-  paste0(paste0("Y", yr), "_H")
 
 count = count +1 
 }
@@ -353,7 +371,8 @@ density.plotting <- data.frame()
 for(l in 1:length(dens.mods)){
       temp <- dens.mods[[l]]
       density.plotting <- rbind(density.plotting, 
-                                temp %>% 
+                                temp %>%
+                                      filter(!parameter %in% c("(Intercept)", "year")) %>% 
                                       mutate(year = str_extract(names(dens.mods)[l], "^[[:alnum:]]+"), 
                                              position = str_extract(names(dens.mods)[l], "H$|V$")))
 }
@@ -368,6 +387,7 @@ density.plotting <- density.plotting%>%
       mutate(parameter = factor(str_replace(parameter, "[[:digit:]]:", ""), levels = c("Year", "TR", "OC", "HF", "FWD", "BGBR", "FFR")), 
              position = ifelse(position== "H", "Above-ground", "Below-ground")) 
 
+write_rds(full.dens.mods, "model_outputs/density_model_objects.RDS")
 ```
 
 
@@ -547,7 +567,7 @@ belowground.plotlist <- lapply(unique(Density_4plot$Contrast), function(x){
   aboveground.plotlist.ML <- aboveground.plotlist
   belowground.plotlist.ML <- belowground.plotlist
   
-  keep.list <- c(keep.list, "aboveground.plotlist.ML", "belowground.plotlist.ML", "slope_plots_ML")
+  keep.list <- c(keep.list, "aboveground.plotlist.ML", "belowground.plotlist.ML", "slope_plots_ML", "full.dens.mods")
 ```
 
 
@@ -567,7 +587,7 @@ The less extreme biomass removal treatment (SO) that retained both fine and coar
 
 ## Changes to elemental dynamics in decomposing wood
 
-In general, increased biomass removal was associated with higher retention of elements associated with microbial growth and decay activities. For ease of presentation and ecological interpretations, we placed the elements into three functional groups: Macronutrients (N, P, K, Ca, Mg) - generally present in high concentrations (>1000 ppm) <!--- check this for wood and find reference ---> and are main constituents of amino acids, DNA, proteins, enzymes and cell walls; micronutrients (B, Mn, Zn) - present in low concentrations (<100 ppm) <!--- check this for wood and find reference ---> and are involved in enzyme activity, water transport and metabolic processes [@janusz2013;@gerwien2018;@baldrian2005]; auxillary metals (Fe, Cu, Al) - involved in DNA and hormone synthesis, respiration and lignin decomposition, and pH modulation [@robinson2021a]. For both micronutrients and auxiliary metals, high concentrations can lead to toxicity effects and slowing of metabolic activity and growth. Several elements (Al, Fe, N, P, Zn) showed evidence of active import during decay, as they had multi-fold increases compared to unincubated stakes (Figures S\@ref(fig:aluminum), S\@ref(fig:iron), S\@ref(fig:nitrogen), S\@ref(fig:phosphorus), S\@ref(fig:zinc)), while remaining elements decreased from levels of original pools.
+In general, increased biomass removal was associated with higher retention of elements associated with microbial growth and decay activities. For ease of presentation and ecological interpretations, we placed the elements into three functional groups: Macronutrients (N, P, K, Ca, Mg) - generally present in high concentrations (>1000 ppm) and are main constituents of amino acids, DNA, proteins, enzymes and cell walls; micronutrients (B, Mn, Zn) - present in low concentrations (<100 ppm) and are involved in enzyme activity, water transport and metabolic processes [@janusz2013;@gerwien2018;@baldrian2005]; auxillary metals (Fe, Cu, Al) - involved in DNA and hormone synthesis, respiration and lignin decomposition, and pH modulation [@robinson2021a]. For both micronutrients and auxiliary metals, high concentrations can lead to toxicity effects and slowing of metabolic activity and growth. Several elements (Al, Fe, N, P, Zn) showed evidence of active import during decay, as they had multi-fold increases compared to unincubated stakes (Figures S\@ref(fig:aluminum), S\@ref(fig:iron), S\@ref(fig:nitrogen), S\@ref(fig:phosphorus), S\@ref(fig:zinc)), while remaining elements decreased from levels of original amounts.
 
 
 ### Effects of harvesting on elemental dynamics in decomposing wood
@@ -602,6 +622,7 @@ colnames(contr.4lmer) <- colnames(harvest.contrast.matrix)
 rownames(contr.4lmer) <- rownames(harvest.contrast.matrix[levels(chemistry$Treatment), ] )
 
 chem.mods <- list()
+full.chem.mods <- list()
 count = 1
 ### Think I want to make an estimate of effect size for each YEAR & look at the trend of the effects over time... - not in one model because there is an interaction there, and the density change relationship is not linear.
 
@@ -617,20 +638,26 @@ for(chem.type in unique(chemistry$name)){
 
 chem.mods[[count]] <- summary(harv.model.V)$coefficients %>% as.data.frame() %>%
       rownames_to_column("parameter") %>%
-      filter(!parameter %in% c("(Intercept)", "year"))%>%
       mutate(parameter = gsub("Treatment", "", parameter))
 
 names(chem.mods)[count] <-  paste0(chem.type, "_",  "overall_V")
+
+full.chem.mods[[count]] <- harv.model.V
+
+names(full.chem.mods)[count] <-  paste0(chem.type, "_",  "overall_V")
 count = count + 1
 
 harv.model.H <- lmerTest::lmer(value.wt.corrected ~ ML + Treatment + (1|Field.rep), data = chemistry %>% filter(H.V == "H", name == chem.type))
 
 chem.mods[[count]] <- summary(harv.model.H)$coefficients %>% as.data.frame() %>%
       rownames_to_column("parameter") %>%
-      filter(!parameter %in% c("(Intercept)", "year")) %>%
       mutate(parameter = gsub("Treatment", "", parameter))
 
 names(chem.mods)[count] <-  paste0(chem.type, "_", "overall_H")
+
+full.chem.mods[[count]] <- harv.model.H
+
+names(full.chem.mods)[count] <-  paste0(chem.type, "_",  "overall_H")
 count = count + 1
       }else{
             harv.model.V <- lmerTest::lmer(value.wt.corrected ~ poly(ML,2) + Treatment + (1|Field.rep), data = chemistry %>% filter(H.V == "V", name == chem.type))
@@ -641,16 +668,21 @@ chem.mods[[count]] <- summary(harv.model.V)$coefficients %>% as.data.frame() %>%
       mutate(parameter = gsub("Treatment", "", parameter))
 
 names(chem.mods)[count] <-  paste0(chem.type, "_",  "overall_V")
+full.chem.mods[[count]] <- harv.model.V
+
+names(full.chem.mods)[count] <-  paste0(chem.type, "_",  "overall_V")
 count = count + 1
 
 harv.model.H <- lmerTest::lmer(value.wt.corrected ~ poly(ML,2) + Treatment + (1|Field.rep), data = chemistry %>% filter(H.V == "H", name == chem.type))
 
 chem.mods[[count]] <- summary(harv.model.H)$coefficients %>% as.data.frame() %>%
       rownames_to_column("parameter") %>%
-      filter(!parameter %in% c("(Intercept)", "year")) %>%
       mutate(parameter = gsub("Treatment", "", parameter))
 
 names(chem.mods)[count] <-  paste0(chem.type, "_", "overall_H")
+full.chem.mods[[count]] <- harv.model.H
+
+names(full.chem.mods)[count] <-  paste0(chem.type, "_",  "overall_H")
 count = count + 1 
       }
 
@@ -659,6 +691,7 @@ count = count + 1
 ### compile model results for graphical summary
 
 chem.effects <- bind_rows(chem.mods, .id = "model") %>% 
+      filter(!parameter %in% c("(Intercept)", "year")) %>%
       group_by(model) %>%
       mutate(position = str_extract(model, "H$|V$"), 
              chem.parameter = str_extract(model, "^[[:alnum:]]+")) %>%
@@ -715,7 +748,7 @@ plotlist <- lapply(combos$set, function(x){
       ### chem grouped Plots
       if(subset$harv.bio == "Harvest"){
             colvec = c(SO = "grey66", FT = "grey66", UC= "black", OLD = "#117733", FIRE = "#AA4499")
-            shapevec = c(SO = 10, FT = 13, UC= 19, Old = 15, Fire = 17)
+            shapevec = c(SO = 10, FT = 13, UC= 19, OLD = 15, FIRE = 17)
       }else{
             colvec =  c(SO = "grey66", FT = "#44AA99", S = "#CC6677", B = "#882235")
             shapevec = c(SO = 10, FT = 13, S= 23, B = 25)
@@ -758,12 +791,12 @@ for(cl in 1:length(unique_chem)){
       plotsets <- plotlist[combos_in$set]
       chem_plot_objects[[cl]] <- ggarrange(
             ggarrange(plotlist = plotsets[c(1,2)], nrow =2, ncol = 1, labels = c("A", "C"), common.legend = T),
-            ggarrange(plotlist = plotsets[c(3,4)], nrow =2, ncol = 1, labels = c("B", "D"), common.legend = T)) %>% annotate_figure(left = paste0("Change in proportion of original ", unique_chem[cl], " pool"), bottom = "Mass Loss (proportion of original weight lost)", top =text_grob(paste0(unique_chem[cl], " decay dynamics"), color = "black", size = 14))
+            ggarrange(plotlist = plotsets[c(3,4)], nrow =2, ncol = 1, labels = c("B", "D"), common.legend = T)) %>% annotate_figure(left = paste0("Change in proportion of original ", unique_chem[cl], " amount"), bottom = "Mass Loss (proportion of original weight lost)", top =text_grob(paste0(unique_chem[cl], " decay dynamics"), color = "black", size = 14))
       names(chem_plot_objects)[cl] <- unique_chem[cl]
 }
 
-
-keep.list <- c(keep.list, "chem_plot_objects", "Chem_4plot")
+write_rds(full.chem.mods, "model_outputs/chemistry_model_objects.RDS")
+keep.list <- c(keep.list, "chem_plot_objects", "Chem_4plot", "full.chem.mods")
 ```
 
 
@@ -781,7 +814,7 @@ Increased biomass removal intensity resulted in limited changes in elemental con
 
 Fine woody debris removal (FT), compared to fine woody debris retention (SO) resulted in no differences in content of auxiliary metals or micronutrients (Figure \@ref(fig:chem-summary-biomass)-A,M), but did result in lower amounts of macronutrients (P, K, Ca, Mg) (Figure \@ref(fig:chem-summary-biomass)-G) in above-ground stakes. FT also resulted in lower amounts of P, K and Zn in the below-ground stakes compared to SO (Figure \@ref(fig:chem-summary-biomass)-J,P) but did have higher Al (Figure \@ref(fig:chem-summary-biomass)-D). The dynamics of these differences were consistent across elements, where above-ground element retention was lower in FT treatments in later stages of decay (>40% mass loss) (Figure S\@ref(fig:phosphorus)-B, S\@ref(fig:potassium)-B, S\@ref(fig:calcium)-B, S\@ref(fig:magnesium)-B), and below-ground element retention and import was generally lower in early- and mid-decay (<60% mass loss) (Figure S\@ref(fig:phosphorus)-D, S\@ref(fig:potassium)-D, S\@ref(fig:magnesium)-D).
 
-The additional below-ground biomass (S) removal resulted in greater import of auxiliary metals (Al, Fe) (Figure \@ref(fig:chem-summary-biomass)-B), but only minor reductions in K, and no differences in micronutrients for stakes incubated above ground (Figure \@ref(fig:chem-summary-biomass)-H). There was no effect on elemental retention for below-ground stakes (Figure \@ref(fig:chem-summary-biomass)-E,K,Q). These changes generally reflected consistent differences through decay rather than differences in temporal dynamics, and auxiliary metals showed strong evidence of import during decay with multi-fold increases in proportion of original pools of Al and Fe present through the decay process (Figure S\@ref(fig:aluminum)-B, S\@ref(fig:iron)-B, S\@ref(fig:potassium)-B).
+The additional below-ground biomass (S) removal resulted in greater import of auxiliary metals (Al, Fe) (Figure \@ref(fig:chem-summary-biomass)-B), but only minor reductions in K, and no differences in micronutrients for stakes incubated above ground (Figure \@ref(fig:chem-summary-biomass)-H). There was no effect on elemental retention for below-ground stakes (Figure \@ref(fig:chem-summary-biomass)-E,K,Q). These changes generally reflected consistent differences through decay rather than differences in temporal dynamics, and auxiliary metals showed strong evidence of import during decay with multi-fold increases in proportion of original amounts of Al and Fe present through the decay process (Figure S\@ref(fig:aluminum)-B, S\@ref(fig:iron)-B, S\@ref(fig:potassium)-B).
 
 Forest floor removal (B) resulted in the retention of the auxiliary metals Al and Fe (Figure \@ref(fig:chem-summary-biomass)-C), but decreased amounts of the macro- and micronutrients P, B and Mn (Figure \@ref(fig:chem-summary-biomass)-I,O) in above-ground wood stakes compared to lower levels of biomass removal (SO, FT, S). Below-ground stake incubations also had lower macro- and micronutrients (P, K, Zn contents) (Figure \@ref(fig:chem-summary-biomass)-L,R), but did have higher amounts of Mg (Figure \@ref(fig:chem-summary-biomass)-L) in B. The bladed treatment generally had decay-state independent changes in macro- and micronutrients aside from Mg, where the dynamics appeared to be altered, with more Mg accumulation in wood stakes with more advanced decay (Figures S\@ref(fig:phosphorus)-B,D, S\@ref(fig:boron)-B, S\@ref(fig:manganese)-B, S\@ref(fig:potassium)-D, S\@ref(fig:zinc)-D, S\@ref(fig:magnesium)-D). The increased auxilliary metals in B displayed a dynamic response to decay, with elevated levels in early decay (<20% mass loss) that fell to similar levels as those of the other biomass removal treatments (SO, FT, S) as decay advanced (Figure S\@ref(fig:aluminum)-B, S\@ref(fig:iron)-B).  
 
@@ -789,7 +822,7 @@ Forest floor removal (B) resulted in the retention of the auxiliary metals Al an
 # Discussion
 
 
-In this study, we found that wood stake decomposition and the associated elemental changes involved in decomposition were affected by biomass harvesting intensity. Decomposition patterns, in terms of absolute mass loss, in operationally approved harvest treatments (SO, FT) broadly resembled the effects of the recently disturbed wildfire reference (Fire), mid-aged reference (UC), and 95-year old fire origin reference stands (OLD). However, there were indications that the temporal decomposition rates and chemistry changes through decomposition differed between harvested and the three reference conditions used in this study. The different biomass removal intensity treatments resulted in progressively lower above-ground decomposition, but variable effects on below-ground decomposition, which may be related to differential disturbance of local biotic structures like fungal networks and soil decomposer communities. Wood stakes exhibited treatment-dependent changes in chemical composition during decay, with potential import of nutrients early in the decay process for enzymatic processes, and differences in the patterns associated with chemical change during decay.
+In this study, we found that wood stake decomposition and the associated elemental changes involved in decomposition were affected by biomass harvesting intensity. Decomposition patterns, in terms of absolute mass loss, in operationally approved harvest treatments (SO, FT) broadly resembled the effects of the recently disturbed wildfire reference (Fire), mid-aged reference (UC), and 95-year old fire origin reference stands (OLD). However, there were indications that the temporal decomposition rates and chemistry changes through decomposition differed between harvested and the three reference conditions used in this study. The different biomass removal intensity treatments resulted in progressively lower above-ground decomposition, but variable effects on below-ground decomposition, which may be related to differential disturbance of local biotic structures like fungal networks and soil decomposer communities. Wood stakes exhibited treatment-dependent changes in chemical composition during decay, with potential import of nutrients early in the decay process, potentially for enzymatic processes, and differences in the patterns associated with chemical change during decay.
 
 
 ## Harvesting causes changes to decay processes
@@ -801,10 +834,10 @@ Our finding that clearcut harvesting (SO, FT) resulted in wood decay patterns di
 Microclimate is a known driver of decomposition, which we found to be the most likely explanation for our observed above-ground decomposition patterns. The minimal response of above-ground decomposition, for both mass loss and changes in chemistry, between harvested and mid-aged reference sites was expected based on the small near-surface air temperature effect (~+0.1°C) observed by Webster *et al.* [-@webster2025]. Yet annual above-ground decay rates differed in ways that suggested total above-ground decomposition in harvested sites is likely to remain lower compared to mid-aged (UC) and old, fire origin (OLD) references, but increase beyond rates in the recent fire sites (FIRE) as decay advances. Other microclimate attributes such as soil temperature and moisture can also be influenced by understory characteristics however, which may explain why our above-ground decomposition rates mirrored the patterns of shrub and herb cover reported in Work et al [-@work2023], where shrub cover in SO and FT treatments were comparable to the nearby recently burned site, slightly higher than the old, fire origin reference, and significantly higher than the unharvested mid-aged stand. Other studies have also noted that moisture controls on decomposition require understanding of local-scale features [@gadgil1975;@holden2013]. Several studies attribute at least some of the differences observed in wood decay rates under different conditions to moisture and temperature [@finer2016;@risch2022]. Additionally, as harvested sites were disc-trenched, they had less intact forest floor than unharvested references [@work2023], potentially disrupting decomposer hyphal networks in the upper layers of soils [@holden2013] and contributing to the reduced above-ground decomposition we observed.
 
 
-The notably different trends between below-ground decomposition rates in the harvest (SO, FT) and reference conditions (UC, OLD, FIRE) suggests harvested sites have a more rapid initial decomposition rate, while the references (UC, OLD, FIRE) decompose more slowly at first, but increase as decay advances. Finér et al. [-@finer2016] found that below-ground decomposition was less influenced by moisture differences, than above-ground decomposition, which means other mechanisms could be influencing these dynamics. Interactions with vegetation communities and mycorrhizal networks, or just the microclimate controls created by understory vegetation may also have influenced the below-ground decay of wood stakes. Harvest-related stresses generally disrupt mycorrhizal networks, reducing fungal biomass and severing resource connections [@holden2013;@kohout2018;@kwasna2019] which can prime [@choreno-parra2024] or reduce decomposition [@smith2019; @lustenhouwer2020; @gadgil1971; @gadgil1975]. In the case of our below-ground stakes, the disruption may have had more of a priming effect. 
+The notably different trends between below-ground decomposition rates in the harvest (SO, FT) and reference conditions (UC, OLD, FIRE) suggests harvested sites have a more rapid initial decomposition rate, while the references (UC, OLD, FIRE) decompose more slowly at first, but increase as decay advances. Finér et al. [-@finer2016] found that below-ground decomposition was less influenced by moisture differences, than above-ground decomposition, which means other mechanisms could be influencing these dynamics. Possible interactions with vegetation communities and mycorrhizal networks, or just the microclimate controls created by understory vegetation may also have influenced the below-ground decay of wood stakes. Harvest-related stresses generally disrupt mycorrhizal networks, reducing fungal biomass and severing resource connections [@holden2013;@kohout2018;@kwasna2019] which can prime [@choreno-parra2024] or reduce decomposition [@smith2019; @lustenhouwer2020; @gadgil1971; @gadgil1975]. In the case of our below-ground stakes, there could have been disruptions that had more of a priming effect. 
 
 
-Differences in the changes in elemental content of wood stakes as decomposition advanced also support that harvesting (SO, FT) had differences in decomposer activity compared to reference conditions (UC, FIRE, OLD). Harvesting (SO, FT) had higher levels of auxiliary metals associated with wood decomposition processes and macro- and micro-nutrients indicative of increased microbial biomass compared to reference conditions (UC, FIRE, OLD). Notably, a larger number of elements and greater responses were observed in the comparison to UC. The increases in auxiliary metals connected to decomposition infer higher retention of these elements for these processes [@schilling2006]. Additionally, the higher ratios of macronutrients in microbial biomass than wood means that increased amounts of these elements across treatments were indicative of higher colonization [@filipiak2016;@boddy2016]. The elemental changes suggest that stakes both above-and below-ground were subject to increased colonization and metabolic investment (i.e., active metal transport) to support wood decomposition processes. While the above-ground decomposition rates do not reflect the expected patterns that one would expect of increased colonization, it is likely that there was less variation in moisture for below-ground stakes, and so the differences in metabolic investment were realized into differences into decay rates, while the microclimate effects were the main controls of above-ground decomposition. The contrasting responses of boron and manganese may indicate increased boron export from harvested residues to enhance fungal survival [@lehto2010] and increased competition among saprotrophs. This could explain why below-ground decomposition rates in harvested sites approached zero at approximately 50% total mass loss, if initial colonization and competition for wood stakes limited decomposition.  
+Differences in the changes in elemental content of wood stakes as decomposition advanced also support that harvesting (SO, FT) had differences in decomposer activity compared to reference conditions (UC, FIRE, OLD). Harvesting (SO, FT) had higher levels of auxiliary metals associated with wood decomposition processes and macro- and micro-nutrients suggesting increased microbial biomass compared to reference conditions (UC, FIRE, OLD). Notably, a larger number of elements and greater responses were observed in the comparison to UC. The increases in auxiliary metals connected to decomposition could indicate higher retention of these elements for these processes [@schilling2006]. Additionally, the higher ratios of macronutrients in microbial biomass than wood could mean that increased amounts of these elements across treatments were related to higher colonization [@filipiak2016;@boddy2016]. The elemental changes suggest that stakes both above-and below-ground were possibly subject to increased colonization and metabolic investment (i.e., active metal transport) to support wood decomposition processes. While the above-ground decomposition rates do not reflect the patterns that one would expect of increased colonization, it was more likely strong microclimate effects were the main controls of above-ground decomposition. Below-ground stakes had more potential for biotic controls to be involved. There was less variation in moisture for below-ground stakes, and so it is possible that differences in metabolic investment could result in differences into decay rates. The contrasting responses of boron and manganese may indicate increased boron export from harvested residues to enhance fungal survival [@lehto2010] and possible competition among saprotrophs. While not directly demonstrable with only chemistry, this could explain why below-ground decomposition rates in harvested sites approached zero at approximately 50% total mass loss, if initial colonization and competition for wood stakes limited decomposition.  
 
 
 We expected differences in decomposition between the harvested and comparably-aged wildfire stand due to the distinct differences between fire-effected and harvest-effected soils. Both disturbances can reduce soil microbial biomass [@leduc2007], but fire can also increase bioavailability of carbon sources via pyrolysis, increase soil pH and increase soil nitrogen availability [@knicker2007;@leduc2007]. The decomposition of stakes at the old, fire-origin stand proceeded slower than harvested sites in the first two years but rose to comparable amounts by year 5. It is likely that cooler soil conditions, due to the insulating effect of the deep (10-15 cm) humus/live feathermoss layer slowed initial decomposition and microbial activity but allowed for more consistent moisture conditions and increased nutrient availability as decomposition advanced. In support of this idea, stand successional stages have well documented microclimate differences [@fleming2021] that also coincide with different soil chemistry [@fleming2021] and soil community responses [@porter2023] which, collectively, could translate to functional differences in the decomposer community. Work et al, [-@work2023] did not find large differences between exposed mineral soil or understory shrub cover in harvested (SO, FT) treatments compared to the recently burned fire site, and only small differences compared to the old, fire-origin reference. Our study, with the additional context from other work on this site [@work2023;@webster2025;@santala2025] demonstrates that harvesting alters microclimate and soil condition to the extent that biological soil processes are altered. These findings emphasize the importance of including multiple references in assessments of harvesting effects, where possible. Including and comparing against the recently burned and old, fire-origin stands provided a comparison that suggests that harvesting results in outcomes different from a relevant natural disturbance at a similar stage of recovery and in-tact forest conditions.
@@ -816,10 +849,10 @@ We expected differences in decomposition between the harvested and comparably-ag
 Our results suggest that the extent of biomass removal (e.g., fine vs. coarse, above-ground vs. below-ground, complete OM removal) have unique effects on site-level controls of mass loss and elemental dynamics in decomposing wood. The more intensive biomass removals were likely exacerbating the effects of general harvesting on decomposition but driven by different mechanisms. Forest floor removal (B) effects were likely driven by microclimate changes, consistent with soil respiration patterns observed by Webster et al. [-@webster2016]. The exposed mineral soil lacking forest floor or understory vegetation likely increased surface evapotranspiration and reduced moisture retention [@santala2025;@work2023;@webster2021], limiting decay. The elevated retention of auxiliary metals and, macro- and micronutrients under more intensive biomass removal aligns with our decomposition results to show that higher levels of biomass removal increase competition within decaying wood and slows decomposition. 
 
 
-The most extreme biomass removal treatment, forest floor removal (B), showed indications of reduced colonization and microbial activity rather than competitive interactions. This resulted in the lowest decomposition and lower macro- and microelement pools relative to other harvesting treatments. Our findings suggest that microclimate differences resulting from forest floor removal overpower biological colonization effects, while fine woody debris and below-ground biomass removal created conditions that facilitated initial colonization but resulted in later resource competition. In the less intensive treatments (FT, S), inconsistent responses suggest that decomposition was shaped by additional factors beyond microclimate controls. In the fine woody debris removal treatment (FT), decreased initial decomposition rates, and decreased macro- and micronutrients in the above-ground stakes support the interpretation of lower colonization and wood utilization, than in stem-only harvesting (SO). For the below-ground stakes, FT produced similar overall mass-loss to SO but the decreasing decay rate over time and increased aluminum, an auxiliary metal associated with pH amelioration and phosphorus immobilization [@clarholm2013], suggesting that there was energetic investment in modifying wood chemistry without accompanying decomposition increases. Below-ground biomass removal (S) also appeared to have two different outcomes based on wood stake position. The above-ground S stakes had decomposition rates that decreased over time, and appeared to have more retention of auxiliary metals with the same amount of total decomposition as FT and SO. These differences suggest an initial rapid colonization and retention of metals for wood decomposition processes, followed by slowing decomposition, which may have been related to competition. This suggests that there may have been scarcity of above-ground wood in S, where initial colonizing organisms competed with later organisms entering the wood. In contrast, below‑ground stakes in S showed suppressed decomposition across most years without corresponding changes in elemental content, suggesting overriding microclimate constraints on microbial activity compared to FT and SO, similar to the B treatment. Collectively, both intensification treatments (S, B) appeared to suppress decomposition in either above- or below-ground environments driven by deviations to harvesting decay rate and element allocation dynamics that deviated from approved harvesting methods (SO, FT). 
+The most extreme biomass removal treatment, forest floor removal (B), showed indications of reduced colonization and microbial activity rather than competitive interactions. This resulted in the lowest decomposition and lower macro- and microelement amounts relative to other harvesting treatments. Our findings suggest that microclimate differences resulting from forest floor removal overpower biological colonization effects, while fine woody debris and below-ground biomass removal created conditions that facilitated initial colonization but resulted in later resource competition. In the less intensive treatments (FT, S), inconsistent responses suggest that decomposition was shaped by additional factors beyond microclimate controls. In the fine woody debris removal treatment (FT), decreased initial decomposition rates, and decreased macro- and micronutrients in the above-ground stakes suggest there could be lower colonization and wood utilization, than in stem-only harvesting (SO). For the below-ground stakes, FT produced similar overall mass-loss to SO but the decreasing decay rate over time and increased aluminum, an auxiliary metal associated with pH amelioration and phosphorus immobilization [@clarholm2013], suggested that there was energetic investment in modifying wood chemistry without accompanying decomposition increases. Below-ground biomass removal (S) also appeared to have two different outcomes based on wood stake position. The above-ground S stakes had decomposition rates that decreased over time, and appeared to have more retention of auxiliary metals with the same amount of total decomposition as FT and SO. These differences could be related to biological processes such as an initial rapid colonization and retention of metals for wood decomposition processes, followed by slowing decomposition, if increased competition coincided with later stages of decay. Should this scenario be the case in our study, it would suggest scarcity of above-ground wood in S, where initial colonizing organisms competed with later organisms entering the wood. In contrast, below‑ground stakes in S showed suppressed decomposition across most years without corresponding changes in elemental content, suggesting overriding microclimate constraints on microbial activity compared to FT and SO, similar to the B treatment. Collectively, both intensification treatments (S, B) appeared to suppress decomposition in either above- or below-ground environments driven by deviations to harvesting decay rate and element allocation dynamics that deviated from approved harvesting methods (SO, FT). 
 
 
-These mixed responses reflect the complex relationship between woody debris decomposition and forest ecosystem controls. Interactions among decomposition, microclimate, soil microbiota, wood availability as a resource, and forest structural and compositional changes likely all, to varying degrees, influence treatment-level patterns. Although previous eDNA-based studies found limited evidence of soil community differences [@smenderovac2023; @smenderovac2017], these methods do not differentiate between live, dormant, and dead biota, which does matter for decay initiation and progression (i.e., live and active biota for colonization). Treatment-level effects on hyphal networks and decomposer communities could either enhance colonization of wood stakes, where higher amounts of woody residues and organic soil provide more decomposer inoculum [@bradford2023;@hu2021] or reduce utilization due to resource competition in early decay stages, where higher fungal diversity has been shown to be negatively correlated to decomposition rate [@fukasawa2021a]. In a related study on the same sites, Work *et al.* [-@work2023] reported increasing severity of forest floor disturbance with increased biomass removal, which would have translated to disruption of hyphal networks in these sites. Work et al [-@work2023] also found that there were reductions in the amount of fine and coarse wood with increasing intensity of biomass removal. In the fine-woody debris removal (FT) and below-ground biomass removal (S) treatments, increased amounts of auxiliary metals indicated that more effort was required for wood decomposition. Increased biomass removal has been demonstrated to decrease soil acidity on these sites [@webster2021] so it may be that increased metal retention in wood stakes on higher biomass removal treatments occurred because of the more acidic conditions [@robinson2021a;@arantes2012;@kerem1999;@xie2012;@ribera2020]. Subtle treatment-specific microclimate changes may also have occurred as the regenerating stands developed, despite the limited understory differences, excluding difference in the bladed treatment [@santala2025]. Additionally, wood stakes could influence their own microclimate through hyphal water transport after colonization, accelerating their own decay [@boddy2009]. Work in Sweden has demonstrated similar complexities to controls as observed in this study, where the same biotic control organisms can have a positive or negative influence on decomposition depending on microclimate context [@gossmann2026].
+These mixed responses reflect the complex relationship between woody debris decomposition and forest ecosystem controls. Interactions among decomposition, microclimate, soil microbiota, wood availability as a resource, and forest structural and compositional changes likely all, to varying degrees, influence treatment-level patterns. Although previous eDNA-based studies found limited evidence of soil community differences [@smenderovac2023; @smenderovac2017], these methods do not differentiate between live, dormant, and dead biota, which does matter for decay initiation and progression (i.e., live and active biota for colonization). Treatment-level effects on hyphal networks and decomposer communities could either enhance colonization of wood stakes, where higher amounts of woody residues and organic soil provide more decomposer inoculum [@bradford2023;@hu2021] or reduce utilization due to resource competition in early decay stages, where higher fungal diversity has been shown to be negatively correlated to decomposition rate [@fukasawa2021a]. In a related study on the same sites, Work *et al.* [-@work2023] reported increasing severity of forest floor disturbance with increased biomass removal, which would have translated to disruption of hyphal networks in these sites. Work et al [-@work2023] also found that there were reductions in the amount of fine and coarse wood with increasing intensity of biomass removal. In the fine-woody debris removal (FT) and below-ground biomass removal (S) treatments, increased amounts of auxiliary metals suggested that more effort was required for wood decomposition. Increased biomass removal has been demonstrated to decrease soil acidity on these sites [@webster2021] so it may be that increased metal retention in wood stakes on higher biomass removal treatments occurred because of the more acidic conditions [@robinson2021a;@arantes2012;@kerem1999;@xie2012;@ribera2020]. Subtle treatment-specific microclimate changes may also have occurred as the regenerating stands developed, despite the limited understory differences, excluding difference in the bladed treatment [@santala2025]. Additionally, wood stakes could influence their own microclimate through hyphal water transport after colonization, accelerating their own decay [@boddy2009]. Work in Sweden has demonstrated similar complexities to controls as suggested by the results of this study, where the same biotic control organisms can have a positive or negative influence on decomposition depending on microclimate context [@gossmann2026].
 
 
 Our findings suggest that generalized decomposition models for regenerating stands following stand-replacing disturbance may misrepresent patterns without considering treatment-level decomposition rates. Typically, decomposition processes are estimated based on a single harvest condition [@vanderwel2006] and/or broader climate conditions [@dai2021]. The existing approaches would miss important nuances related to differences in biotic controls, successional development and the ensuing top-down microclimate controls [@fleming2021]. As a result, predictions of dead wood supply and retention linked to habitat provision, carbon accounting, and forest productivity may be misleading. Rates could be under- or overestimated depending on if decomposition rates are based on undisturbed reference or harvested conditions and do not consider medium-term temporal changes related to stand establishment and development or wood availability and resource competition dynamics.  
@@ -833,7 +866,7 @@ We acknowledge this study is limited in that prepared wood stakes are a simplifi
 # Conclusions
 
 
-Our study found evidence that harvesting results in complex interacting controls on the decay of dead wood which differ from mature, harvest origin and young, mature fire-disturbed stands and that biomass removal intensification caused additional alterations to decomposition processes. Generally, harvesting causes increased initial decomposition, reducing the duration of early decay states of wood compared to natural reference conditions. Additional intensification of harvesting reduced decomposition, but in ways that were mechanistically distinct from reference conditions (i.e., they were not replicating natural or late-stage harvest recovery conditions, rather, introducing a conflicting disturbance). These results imply that harvesting fundamentally changes site characteristics in such a way that local ecological processes are modified during the regeneration stage of stand development. Our results suggest that the influence of biomass removals on microclimate conditions and biodiversity have more control over local decay and nutrient dynamics than total woody biomass stocks and result in treatment-specific alterations to decay dynamics. These changes are likely influencing the decomposition of other litter types, as well as biological activity within soils that requires more study. It would be informative to repeat this wood stake decay experiment as the regenerating stands (harvested and recently burned) advance to the crown closure stage of stand development, to determine if these patterns are maintained at a different stage of post-disturbance recovery. Ecosystem management should focus on maintaining or restoring forest structure, microclimate and decomposer community functions via retention of diverse organic sources and in-tact soils. Results from S and Blading practices demonstrated that there is additional risk to ecosystem function related to the additional soil disturbance and biomass removals. Forest management decisions should treat increased soil disturbance and below-ground biomass removal as higher risk activities and balance them appropriately against benefits. Additionally, there was minimal difference between SO and FT, so these treatments can most likely be treated as functionally equivalent. As discussed in the previous section, these functional differences mean that managers modelling deadwood availability would require separate decomposition rate estimates to account for changing forest and harvest conditions and their interactions.
+Our study found evidence that harvesting results in complex interacting controls on the decay of dead wood which differ from mature, harvest origin and young, mature fire-disturbed stands and that biomass removal intensification caused additional alterations to decomposition processes. Generally, harvesting causes increased initial decomposition, reducing the duration of early decay states of wood compared to natural reference conditions. Additional intensification of harvesting reduced decomposition, but in ways that were mechanistically distinct from reference conditions (i.e., they were not replicating natural or late-stage harvest recovery conditions, rather, introducing a conflicting disturbance). These results imply that harvesting fundamentally changes site characteristics in such a way that local ecological processes are modified during the regeneration stage of stand development. Our results suggest that the influence of biomass removals on microclimate conditions and potentially on biodiversity have more control over local decay and nutrient dynamics than total woody biomass stocks and result in treatment-specific alterations to decay dynamics. These changes are likely influencing the decomposition of other litter types, as well as biological activity within soils that requires more study. It would be informative to repeat this wood stake decay experiment as the regenerating stands (harvested and recently burned) advance to the crown closure stage of stand development, to determine if these patterns are maintained at a different stage of post-disturbance recovery. Ecosystem management should focus on maintaining or restoring forest structure, microclimate and decomposer community functions via retention of diverse organic sources and in-tact soils. Results from S and Blading practices demonstrated that there is additional risk to ecosystem function related to the additional soil disturbance and biomass removals. Forest management decisions should treat increased soil disturbance and below-ground biomass removal as higher risk activities and balance them appropriately against benefits. Additionally, there was minimal difference between SO and FT, so these treatments can most likely be treated as functionally equivalent. As discussed in the previous section, these functional differences mean that managers modelling deadwood availability would require separate decomposition rate estimates to account for changing forest and harvest conditions and their interactions.
 
 
 
@@ -849,7 +882,7 @@ During the preparation of this work the author(s) used Government of Canada Copi
 ## Data Accessibility
 
 
-All data generated or analysed during this study are included in this published article [and its supplementary information files]. The datasets and scripts for the current study are also available on our github repository, [https://github.com/GLFC-WET/IslandLake_WoodStakeDecomposition](https://github.com/GLFC-WET/IslandLake_WoodStakeDecomposition).
+All data generated or analysed during this study are included in the Zenodo repository at [https://doi.org/10.5281/zenodo.21249837](https://doi.org/10.5281/zenodo.21249837). The datasets and scripts for the current study are also available on our github repository, where detailed model outputs can also be investigated via following along with the paper analysis [https://github.com/GLFC-WET/ISL_WoodStakeDecomposition](https://github.com/GLFC-WET/ISL_WoodStakeDecomposition).
 
 
 ## Funding
@@ -881,7 +914,7 @@ We would like to specially acknowledge the contributions of Kerrie Waino-Keizer 
 
 ```{r harv-ortho-table-out}
 
-harvest.ortho.table <- data.frame(c(Type = "Harvesting-Reference comparison", Code = "TR", Contrast = "Uncut mid-aged reference vs Stem-Only and Full-treeLINEBREAK(UC vs SO & FT)", Tests = "Effect of recent harvest disturbance", Description="Comparing operational harvest of tree biomass removal to unharvested reference stands to isolates the influence of recent tree removal."),
+harvest.ortho.table <- data.frame(c(Type = "Harvesting-Reference comparison", Code = "TR", Contrast = "Uncut mid-aged reference vs Stem-Only and Full-treeLINEBREAK(UC vs SO & FT)", Tests = "Effect of recent harvest disturbance", Description="Comparing operational harvest of tree biomass removal to unharvested reference stands to isolate the influence of recent tree removal."),
                                  c(Type = "Harvesting-Reference comparison", Code = "OC", Contrast = "Old reference vs Stem-Only and Full-treeLINEBREAK(Old vs SO & FT)", Tests = "Comparison of harvesting to 95 year-old fire origin site", Description="Comparing the old, wildfire reference to the young regenerating stands after being harvested with the operationally approved biomass harvest methods."),
                                   c(Type = "Harvesting-Reference comparison",Code = "HF", Contrast = "Fire reference vs Stem-Only and Full-treeLINEBREAK(Fire vs SO & FT)", Tests = "Comparison of recent harvesting to recent wildfire disturbance", Description="This comparison assesses whether the operationally approved biomass removal treatments are comparable to decay processes after wildfire."), 
                                   c(Type = "Biomass removal intensification", Code = "FWD", Contrast = "Stem-Only vs Full-TreeLINEBREAK(SO vs FT)", Tests = "Effect of fine and coarse woody debris removal vs only coarse wood", Description="Comparing only the full-tree and stem-only removals to isolate the influence of removals of tree tops and branch materials compared to retention of these materials on site."),
@@ -903,7 +936,7 @@ knitr::include_graphics("site_map.jpg", dpi = 300)
 ```
 
 
-```{r ML-plot-controls, fig.width = 10.5, fig.height=8, fig.cap="Patterns of above- and below-ground wood stake mass loss over time for harvest-reference contrasts. Results from a mixed model are reported in panels A-C and E-G as the significance and estimates (p < 0.05) of the polynomial slopes of mass loss over time each contrast. Significant (p < 0.05) Year-based effects of each contrast, created using orthogonal contrasts applied to each year independently, are indicated with red * asterix in each panel. Boxplots represent the different levels of each contrast using colour (coloured and grey) and boxplots show the median mass loss as a central line, two hinges at the 25th and 75th percentiles and, whiskers representing 1.5*IQR. Panels D and H have points showing the decay rate (mass loss year ^-1^) for each treatment, with 95% confidence error bars, and lines displaying the trends over time, as calculated from the overall 2nd order mixed model. Treatment codes are as follows: SO = Stem-Only Harvesting, FT = Full-tree harvesting, UC = Uncut mid-age plantation, OLD = 95 year-old plantation, FIRE = Young fire disturbed plantation."}
+```{r ML-plot-controls, fig.width = 10.5, fig.height=8, fig.cap="Patterns of above- and below-ground wood stake mass loss over time for harvest-reference contrasts. Results from a mixed model are reported in panels A-C and E-G as the significance and estimates (p < 0.05) of the polynomial slopes of mass loss over time each contrast. Significant (p < 0.05) Year-based effects of each contrast, created using orthogonal contrasts applied to each year independently, are indicated with red * asterix in each panel. Each panel is titled with the relevant contrast code and boxplots represent the different levels of each contrast using colour (coloured and grey) and boxplots show the median mass loss as a central line, two hinges at the 25th and 75th percentiles and, whiskers representing 1.5*IQR. Panels D and H have points showing the decay rate (mass loss year ^-1^) for each treatment, with 95% confidence error bars, and lines displaying the trends over time, as calculated from the overall 2nd order mixed model. Contrast codes are as follows: TR = uncut mid-age vs harvested, OC = old forest vs harvested, HF = recent fire vs harvested. Treatment codes are as follows: SO = Stem-Only Harvesting, FT = Full-tree harvesting, UC = Uncut mid-age plantation, OLD = 95 year-old plantation, FIRE = Young fire disturbed plantation."}
 
 Treatments_labels <- ggplot(data.frame(position = c(6:1), name = c("UC = 40 year unharvested", "SO = Stem-Only harvesting", "FT = Full-tree harvesting", "S = stumped", "Old = Nimitz 95 year-old control", "Fire = Ripple Lake Fire")), aes(x = 1, y = position)) + 
                                   geom_text(aes(label = name)) +
@@ -924,7 +957,7 @@ ggarrange(
 ```
 
 
-```{r ML-plot-harv-comparisons, fig.width = 10.5, fig.height=8, fig.cap="Patterns of above- and below-ground wood stake mass loss over time for biomass intensification contrasts. Results from a mixed model are reported in panels A-C and E-G as the significance and estimates (p < 0.05) of the polynomial slopes of mass loss over time each contrast. Significant (p < 0.05) Year-based effects of each contrast, created using orthogonal contrasts applied to each year independently, are indicated with red * asterix in each panel. Boxplots represent the different levels of each contrast using colour (coloured and grey) and boxplots show the median mass loss as a central line, two hinges at the 25th and 75th percentiles and, whiskers representing 1.5*IQR. Panels D and H have points showing the decay rate (mass loss year ^-1^) for each treatment, with 95% confidence error bars, and lines displaying the trends over time, as calculated from the overall 2nd order mixed model. Treatment codes are as follows: SO = Stem-Only Harvesting, FT = Full-tree harvesting, S = FT + Stump removal, B = Blading."}
+```{r ML-plot-harv-comparisons, fig.width = 10.5, fig.height=8, fig.cap="Patterns of above- and below-ground wood stake mass loss over time for biomass intensification contrasts. Results from a mixed model are reported in panels A-C and E-G as the significance and estimates (p < 0.05) of the polynomial slopes of mass loss over time each contrast. Significant (p < 0.05) Year-based effects of each contrast, created using orthogonal contrasts applied to each year independently, are indicated with red * asterix in each panel. Each panel is titled with the relevant contrast code and boxplots represent the different levels of each contrast using colour (coloured and grey) and boxplots show the median mass loss as a central line, two hinges at the 25th and 75th percentiles and, whiskers representing 1.5*IQR. Panels D and H have points showing the decay rate (mass loss year ^-1^) for each treatment, with 95% confidence error bars, and lines displaying the trends over time, as calculated from the overall 2nd order mixed model. Contrast codes are as follows: FWD = fine vs. coarse removal, BGBR = removal of below-ground biomass, FFR = complete organic matter removal. Treatment codes are as follows: SO = Stem-Only Harvesting, FT = Full-tree harvesting, S = FT + Stump removal, B = Blading"}
 
 Treatments_labels <- ggplot(data.frame(position = c(4:1), name = c("SO = Stem-Only harvesting", "FT = Full-tree harvesting", "S = stumped", "B = Bladed")), aes(x = 1, y = position)) + 
                                   geom_text(aes(label = name)) +
@@ -945,7 +978,7 @@ rm(list = ls()[!ls() %in% keep.list])
 ```
 
 
-```{r chem-summary-harvests, fig.width=11, fig.height=6, fig.cap="Orthogonal contrast results of mixed effects model tests for differences in the amount of chemical remaining in decaying stakes incubated above and below-ground for tested harvesting contrasts (TR = Harvested/Mid-aged reference, OC = Harvested/old reference, HF = Harvested/recent fire contrast). Each chemical compound is displayed as text at the effect size based on glm mixed models including a polynomial Mass loss relationship, orthogonal contrasts, and field replicate as a random effect. Error bars display the standard error of the estimated effect size. The treatments in the contrast are displayed on the graph to indicate the direction of effect. Significant effects are indicated with dark grey if they indicate increased values in harvested treatments, contrast-related coloration if they are increased in the reference conditions, and insignificant effects are indicated in light grey. "}
+```{r chem-summary-harvests, fig.width=11, fig.height=6, fig.cap="Orthogonal contrast results of mixed effects model tests for differences in the amount of chemical remaining in decaying stakes incubated above and below-ground for tested harvesting contrasts (TR = Harvested/Mid-aged reference, OC = Harvested/old reference, HF = Harvested/recent fire contrast). Each chemical compound is displayed as text at the effect size based on glm mixed models including a polynomial Mass loss relationship, orthogonal contrasts, and field replicate as a random effect. Error bars display the standard error of the estimated effect size. The treatments in the contrast are displayed on the graph to indicate the direction of effect. Significant effects are indicated with dark grey if they indicate increased values in harvested treatments, contrast-related coloration if they are increased in the reference conditions, and insignificant effects are indicated in light grey. Treatment codes used within plots are as follows: SO = Stem-Only Harvesting, FT = Full-tree harvesting, UC = Uncut mid-age plantation, OLD = 95 year-old plantation, FIRE = Young fire disturbed plantation. "}
 Chem_4plot %>% 
       group_by(Contrast, name, position, Estimate, `Std. Error`, `Pr(>|t|)`) %>%
       mutate(Contrast = factor(Contrast, levels = c("TR", "FWD", "BGBR", "FFR","OC", "HF"))) %>%
@@ -988,19 +1021,21 @@ for(plot_group in unique(chem.effect.plot$plotting_group)) {
       theme_bw() +
       theme(legend.position="none", axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title = element_blank(), panel.border = element_rect(color = "grey66"), plot.title = element_text(color = plot_panel_color)) + 
       scale_color_manual(values = c("ns"="grey80", "pos"="grey30", "neg" = plot_panel_color[[1]])) + 
-            ggtitle(title_text)
+            ggtitle(title_text) + 
+            coord_cartesian(clip = "off") +
+            scale_y_continuous(expand = expansion(mult = c(0.1, 0.1)))
       
       names(plot_list)[count] <- plot_group
       count = count + 1
 }
 rm(count, title_text)
       
-      ggarrange(plotlist = plot_list, labels = "AUTO", ncol = 6, nrow = 3, legend = FALSE) %>% annotate_figure(left ="Estimated effect of contrast on the proportion of chemical amount change", bottom = paste0(str_c(excluded.vars, collapse = ", "), "  were not significantly different in any contrast."))
+      ggarrange(plotlist = plot_list, labels = "AUTO", ncol = 6, nrow = 3, legend = FALSE) %>% annotate_figure(left ="Estimated effect of contrast on the proportion of chemical amount change") %>% annotate_figure(bottom = text_grob( paste0(str_c(excluded.vars, collapse = ", "), "  were not significantly different in any contrast."), size = 16))
 
 ```
 
 
-```{r chem-summary-biomass, fig.width=11, fig.height=6, fig.cap="Orthogonal contrast results of mixed effects model tests for differences in the amount of chemical remaining in decaying stakes incubated above and below-ground for tested harvesting intensification contrasts (FWD = Fine Woody Debris removal, BGBR = below-ground biomass removal, FFR = Forest Floor Removal). Each chemical compound is displayed as text at the effect size based on glm mixed models including a polynomial Mass loss relationship, orthogonal contrasts, and field replicate as a random effect. Error bars display the standard error of the estimated effect size. The treatments in the contrast are displayed on the graph to indicate the direction of effect. Significant effects are indicated with dark grey if they indicate increased values in harvested treatments, contrast-related coloration if they are increased in the reference conditions, and insignificant effects are indicated in light grey."}
+```{r chem-summary-biomass, fig.width=11, fig.height=6, fig.cap="Orthogonal contrast results of mixed effects model tests for differences in the amount of chemical remaining in decaying stakes incubated above and below-ground for tested harvesting intensification contrasts (FWD = fine vs. coarse removal, BGBR = removal of below-ground biomass, FFR = complete organic matter removal). Each chemical compound is displayed as text at the effect size based on glm mixed models including a polynomial Mass loss relationship, orthogonal contrasts, and field replicate as a random effect. Error bars display the standard error of the estimated effect size. The treatments in the contrast are displayed on the graph to indicate the direction of effect. Significant effects are indicated with dark grey if they indicate increased values in harvested treatments, contrast-related coloration if they are increased in the reference conditions, and insignificant effects are indicated in light grey. Treatment codes within plots are as follows: SO = Stem-Only Harvesting, FT = Full-tree harvesting, S = FT + Stump removal, B = Blading"}
 Chem_4plot %>% 
       group_by(Contrast, name, position, Estimate, `Std. Error`, `Pr(>|t|)`) %>%
       mutate(Contrast = factor(Contrast, levels = c("TR", "FWD", "BGBR", "FFR","OC", "HF"))) %>%
@@ -1043,14 +1078,16 @@ for(plot_group in unique(chem.effect.plot$plotting_group)) {
       theme_bw() +
       theme(legend.position="none", axis.text.x = element_blank(), axis.ticks.x = element_blank(), axis.title = element_blank(), panel.border = element_rect(color = "grey66"), plot.title = element_text(color = plot_panel_color)) + 
       scale_color_manual(values = c("ns"="grey80", "neg"="grey30", "pos" = plot_panel_color[[1]])) + 
-            ggtitle(title_text) 
+            ggtitle(title_text) + 
+            coord_cartesian(clip = "off") +
+            scale_y_continuous(expand = expansion(mult = c(0.1, 0.1)))
       
       names(plot_list)[count] <- plot_group
       count = count + 1
 }
 rm(count, title_text)
       
-      ggarrange(plotlist = plot_list, labels = "AUTO", ncol = 6, nrow = 3, legend = FALSE) %>% annotate_figure(left ="Estimated effect of contrast on the proportion of chemical amount change", bottom = paste0(str_c(excluded.vars, collapse = ", "), "  were not significantly different in any contrast."))
+      ggarrange(plotlist = plot_list, labels = "AUTO", ncol = 6, nrow = 3, legend = FALSE) %>% annotate_figure(left ="Estimated effect of contrast on the proportion of chemical amount change") %>% annotate_figure(bottom = text_grob( paste0(str_c(excluded.vars, collapse = ", "), "  were not significantly different in any contrast."), size = 16))
 
 ```
 
@@ -1058,6 +1095,26 @@ rm(count, title_text)
 
 
 # Supplemental Tables
+
+```{r stake-numbers}
+
+stake.nums <- test.set.Harvest$density %>%
+      mutate(Field.rep = str_extract(Field.rep, "[[:digit:]]$")) %>%
+      summarize(dens.stakes = n(), .by = c(Treatment, year, H.V)) %>%
+      full_join(
+            test.set.Harvest$chemistry %>%
+                  ungroup() %>% 
+                  mutate(H.V = ifelse(year == 0, "SS", H.V), 
+                         Field.rep = ifelse(year == 0, 0, Field.rep), 
+                         Treatment = ifelse(year == 0, "SS", as.character(Treatment))) %>%
+                  summarize(chem.stakes = length(unique(StakeID)), .by = c(Treatment, year, H.V))
+            ) %>%
+      mutate(all_stakes = ifelse(!is.na(chem.stakes), paste0(dens.stakes, "<br>GAP<br> chemistry: ", chem.stakes), dens.stakes), 
+             all_stakes = ifelse(is.na(dens.stakes),  paste0("chemistry: ", chem.stakes), all_stakes)) %>% pivot_wider(-c(dens.stakes, chem.stakes), names_from = Treatment, values_from = all_stakes) %>% 
+      arrange(H.V, year)
+
+knitr::kable(stake.nums, caption = "Number of wood stake samples collected for each year and treatment. Values represent the number of stakes collected for density analyses on the first line, and total number of samples used in chemistry analyses on the second line.", format = "pipe", escape = F)   
+```
 
 ```{r chemistry-summary-table-AG, cache = F}
 #` Table summarizing the range of chemistry measurements, and the number of samples for sister stakes and incubated stakes
@@ -1080,13 +1137,13 @@ chem_DLs <- readRDS("data/chem_DLs.RDS") %>%
 chemistry <- test.set.Harvest$chemistry %>% left_join(chem_DLs, by = "name") %>% 
       filter(!name %in% "CNRatio") %>%
       filter(!is.na(value)) %>%
-      mutate(Treatment = factor(ifelse(is.na(StakeID), "Sister Stake", as.character(Treatment)), levels = c("Sister Stake", "OLD", "FIRE", "UC", "SO", "FT", "S", "B")), 
+      mutate(Treatment = factor(ifelse(is.na(Treatment), "Sister Stake", as.character(Treatment)), levels = c("Sister Stake", "OLD", "FIRE", "UC", "SO", "FT", "S", "B")), 
              units = ifelse(is.na(units), "%", units), 
              name = paste0(name, " (", units, ")"), 
              position = ifelse(H.V == "H", "aboveground", "belowground"), 
              position = ifelse(Treatment == "Sister Stake", "", position)) %>%
       group_by(Treatment, name, year, position)  %>% 
-      summarize(observations = n(), 
+      summarize(observations = length(unique(StakeID)), 
                 below_DL = sum(value < DL),
                 range = str_c(round(range(value), 2), collapse = "-"), 
                 mean = paste0(round(mean(value), 2), " (", round(sd(value), 2), ")")) %>% 
@@ -1115,49 +1172,49 @@ knitr::kable(chemistry %>% filter(position %in% c("", "belowground")), caption =
  Below-ground TR further decreased density, while FFR, BGBR had increased density compared to the treatments without. --->
 
 <!--- ## Macronutrients --->
-```{r carbon, fig.cap = "Patterns of wood stake carbon proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r carbon, fig.cap = "Patterns of wood stake carbon proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$C
 ```
 
 
-```{r nitrogen, fig.cap = "Patterns of wood stake nitrogen proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r nitrogen, fig.cap = "Patterns of wood stake nitrogen proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$N
 ```
 
 
-```{r phosphorus, fig.cap = "Patterns of wood stake phosphorus proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r phosphorus, fig.cap = "Patterns of wood stake phosphorus proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$Phosphorus
 ```
 
 
-```{r calcium, fig.cap = "Patterns of above-ground wood stake calcium proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r calcium, fig.cap = "Patterns of above-ground wood stake calcium proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$Calcium
 ```
 
 
-```{r potassium, fig.cap = "Patterns of above-ground wood stake potassium proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r potassium, fig.cap = "Patterns of above-ground wood stake potassium proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$Potassium
 ```
 
 
-```{r magnesium, fig.cap = "Patterns of above-ground wood stake magnesium proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r magnesium, fig.cap = "Patterns of above-ground wood stake magnesium proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$Magnesium
 ```
 
 
 <!--- ## Micronutrients --->
-```{r manganese, fig.cap = "Patterns of above-ground wood stake manganese proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r manganese, fig.cap = "Patterns of above-ground wood stake manganese proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$Manganese
 ```
 
 
-```{r boron, fig.cap = "Patterns of above-ground wood stake boron proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r boron, fig.cap = "Patterns of above-ground wood stake boron proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$Boron
 ```
 
 
 
-```{r zinc, fig.cap = "Patterns of above-ground wood stake zinc proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r zinc, fig.cap = "Patterns of above-ground wood stake zinc proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$Zinc
 ```
 
@@ -1165,18 +1222,18 @@ chem_plot_objects$Zinc
 <!---## Auxilliary metals--->
 
 
-```{r aluminum, fig.cap = "Patterns of above-ground wood stake aluminum proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r aluminum, fig.cap = "Patterns of above-ground wood stake aluminum proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$Aluminum
 ```
 
 
 
-```{r copper, fig.cap = "Patterns of above-ground wood stake copper proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r copper, fig.cap = "Patterns of above-ground wood stake copper proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$Copper
 ```
 
 
 
-```{r iron, fig.cap = "Patterns of above-ground wood stake iron proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes and the loess smoothed relationship to mass loss for each treatment are displayed using shape and colour."}
+```{r iron, fig.cap = "Patterns of above-ground wood stake iron proportion with increased decomposition. Treatments included in Harvesting contrasts (A,C) or Biomass contrasts (B,D) are included for above- (A,B) and below-ground (C,D) wood stakes.  Points representing individual wood stakes are displayed using shape and color and the loess smoothed relationship to mass loss for each treatment are displayed using colour."}
 chem_plot_objects$Iron
 ```
