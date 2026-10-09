@@ -68,7 +68,7 @@ keep.list <- c(ls(), "keep.list")
 ```
 
 
-Emily Smenderovac^1^*, Caroline Emilson^1^, Eoin O'Hara^1^, Kerrie Wainio-Keizer^1^, Derek Chartrand^1^, Dave Morris^2^, Erik Emilson^1^ and, Lisa Venier^1^
+Emily Smenderovac^1^*, Caroline Emilson^1^, Eóin O'Hara^1^, Kerrie Wainio-Keizer^1^, Derek Chartrand^1^, Dave Morris^2^, Erik Emilson^1^ and, Lisa Venier^1^
 
 
 ^1^ Great Lakes Forestry Centre, Natural Resources Canada, 1219 Queen Street East, Sault Ste Marie, Canada, P6A 2E5
